@@ -14,7 +14,7 @@ func NewTransaction() *Transaction {
 	return &Transaction{}
 }
 
-func (t *Transaction) isValid() error {
+func (t *Transaction) IsValid() error {
 	if t.Amount > 1000 {
 		return errors.New("you dont have limit for this transaction")
 	}

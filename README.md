@@ -1,2 +1,3 @@
 go mod init github.com/samuelterra22/aluno-go
 go test ./...
+mockgen -source=entity/repository.go -destination=entity/mock/mock.go
