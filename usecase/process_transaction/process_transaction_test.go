@@ -2,7 +2,7 @@ package process_transaction
 
 import (
 	"github.com/golang/mock/gomock"
-	mock_entity "github.com/samuelterra22/aluno-go/entity/mock"
+	mock_entity "github.com/samuelterra22/clean-architecture-go/entity/mock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

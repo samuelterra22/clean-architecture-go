@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/samuelterra22/aluno-go/adapter/repository/fixture"
+	"github.com/samuelterra22/clean-architecture-go/adapter/repository/fixture"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"

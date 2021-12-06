@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/samuelterra22/aluno-go/adapter/repository"
-	"github.com/samuelterra22/aluno-go/usecase/process_transaction"
+	"github.com/samuelterra22/clean-architecture-go/adapter/repository"
+	"github.com/samuelterra22/clean-architecture-go/usecase/process_transaction"
 	"log"
 )
 

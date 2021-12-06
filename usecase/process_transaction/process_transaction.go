@@ -1,6 +1,6 @@
 package process_transaction
 
-import "github.com/samuelterra22/aluno-go/entity"
+import "github.com/samuelterra22/clean-architecture-go/entity"
 
 type ProcessTransaction struct {
 	Repository entity.TransactionRepository

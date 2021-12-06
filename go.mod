@@ -1,4 +1,4 @@
-module github.com/samuelterra22/aluno-go
+module github.com/samuelterra22/clean-architecture-go
 
 go 1.17
 
