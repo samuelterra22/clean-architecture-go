@@ -2,29 +2,94 @@ package process_transaction
 
 import (
 	"github.com/golang/mock/gomock"
-	mock_entity "github.com/samuelterra22/clean-architecture-go/domain/entity/mock"
+	"github.com/samuelterra22/clean-architecture-go/domain/entity"
+	mock_repository "github.com/samuelterra22/clean-architecture-go/domain/repository/mock"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
-func TestProcessTransactionWhenItsValid(t *testing.T) {
+func TestProcessTransaction_ExecuteInvalidCreditCard(t *testing.T) {
 	input := TransactionDtoInput{
-		ID:        "1",
-		AccountID: "1",
-		Amount:    200,
+		ID:                        "1",
+		AccountID:                 "1",
+		Amount:                    200,
+		CreditCardNumber:          "40000000000000000",
+		CreditCardName:            "Samuel Terra",
+		CreditCardExpirationMonth: 12,
+		CreditCardExpirationYear:  time.Now().Year(),
+		CreditCardCVV:             123,
 	}
 
 	expectedOutput := TransactionDtoOutput{
 		ID:           "1",
-		Status:       "approved",
+		Status:       entity.REJECTED,
+		ErrorMessage: "invalid credit card number",
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repositoryMock := mock_repository.NewMockTransactionRepository(ctrl)
+	repositoryMock.EXPECT().Insert(input.ID, input.AccountID, input.Amount, expectedOutput.Status, expectedOutput.ErrorMessage).Return(nil)
+
+	usecase := NewProcessTransaction(repositoryMock)
+
+	output, err := usecase.Execute(input)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedOutput, output)
+}
+
+func TestProcessTransaction_ExecuteRejectedTransaction(t *testing.T) {
+	input := TransactionDtoInput{
+		ID:                        "1",
+		AccountID:                 "1",
+		Amount:                    2000,
+		CreditCardNumber:          "4193523830170205",
+		CreditCardName:            "Samuel Terra",
+		CreditCardExpirationMonth: 12,
+		CreditCardExpirationYear:  time.Now().Year(),
+		CreditCardCVV:             123,
+	}
+
+	expectedOutput := TransactionDtoOutput{
+		ID:           "1",
+		Status:       entity.REJECTED,
+		ErrorMessage: "you dont have limit for this transaction",
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	repositoryMock := mock_repository.NewMockTransactionRepository(ctrl)
+	repositoryMock.EXPECT().Insert(input.ID, input.AccountID, input.Amount, expectedOutput.Status, expectedOutput.ErrorMessage).Return(nil)
+
+	usecase := NewProcessTransaction(repositoryMock)
+
+	output, err := usecase.Execute(input)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedOutput, output)
+}
+
+func TestProcessTransaction_ExecuteApprovedTransaction(t *testing.T) {
+	input := TransactionDtoInput{
+		ID:                        "1",
+		AccountID:                 "1",
+		Amount:                    200,
+		CreditCardNumber:          "4193523830170205",
+		CreditCardName:            "Samuel Terra",
+		CreditCardExpirationMonth: 12,
+		CreditCardExpirationYear:  time.Now().Year(),
+		CreditCardCVV:             123,
+	}
+
+	expectedOutput := TransactionDtoOutput{
+		ID:           "1",
+		Status:       entity.APPROVED,
 		ErrorMessage: "",
 	}
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	repositoryMock := mock_entity.NewMockTransactionRepository(ctrl)
-	repositoryMock.EXPECT().Insert(input.ID, input.AccountID, input.Amount, "approved", "").Return(nil)
+	repositoryMock := mock_repository.NewMockTransactionRepository(ctrl)
+	repositoryMock.EXPECT().Insert(input.ID, input.AccountID, input.Amount, entity.APPROVED, "").Return(nil)
 
 	usecase := NewProcessTransaction(repositoryMock)
 	output, err := usecase.Execute(input)

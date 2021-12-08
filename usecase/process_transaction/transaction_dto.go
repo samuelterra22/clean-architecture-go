@@ -7,6 +7,7 @@ type TransactionDtoInput struct {
 	CreditCardNumber          string  `json:"credit_card_number"`
 	CreditCardName            string  `json:"credit_card_name"`
 	CreditCardExpirationMonth int     `json:"credit_card_expiration_month"`
+	CreditCardExpirationYear  int     `json:"credit_card_expiration_year"`
 	CreditCardCVV             int     `json:"credit_card_cvv"`
 }
 
