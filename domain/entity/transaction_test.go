@@ -5,6 +5,16 @@ import (
 	"testing"
 )
 
+func TestTransaction_IsValid(t *testing.T) {
+	transaction := NewTransaction()
+	transaction.ID = "1"
+	transaction.AccountID = "1"
+	transaction.Amount = 800
+	err := transaction.IsValid()
+
+	assert.Nil(t, err)
+}
+
 func TestTransactionWithAmountGreaterThan1000(t *testing.T) {
 	transaction := NewTransaction()
 	transaction.ID = "1"

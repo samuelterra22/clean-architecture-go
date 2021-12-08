@@ -6,6 +6,7 @@ type Transaction struct {
 	ID           string
 	AccountID    string
 	Amount       float64
+	CreditCard   CreditCard
 	Status       string
 	ErrorMessage string
 }
@@ -22,4 +23,8 @@ func (t *Transaction) IsValid() error {
 		return errors.New("the amount must be greater than 1")
 	}
 	return nil
+}
+
+func (t *Transaction) SetCreditCard(card CreditCard) {
+	t.CreditCard = card
 }

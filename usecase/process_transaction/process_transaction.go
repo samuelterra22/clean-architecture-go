@@ -1,12 +1,15 @@
 package process_transaction
 
-import "github.com/samuelterra22/clean-architecture-go/entity"
+import (
+	"github.com/samuelterra22/clean-architecture-go/domain/entity"
+	"github.com/samuelterra22/clean-architecture-go/domain/repository"
+)
 
 type ProcessTransaction struct {
-	Repository entity.TransactionRepository
+	Repository repository.TransactionRepository
 }
 
-func NewProcessTransaction(repository entity.TransactionRepository) *ProcessTransaction {
+func NewProcessTransaction(repository repository.TransactionRepository) *ProcessTransaction {
 	return &ProcessTransaction{Repository: repository}
 }
 
