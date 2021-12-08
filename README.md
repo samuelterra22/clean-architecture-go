@@ -14,3 +14,15 @@ go test ./...
 ```shell
 mockgen -source=entity/repository.go -destination=entity/mock/mock.go
 ```
+
+```shell
+ go run cmd/main.go 
+```
+
+```shell
+docker-compose up -d
+```
+
+```shell
+docker exec -it aluno_app_1 bash
+```
