@@ -2,6 +2,7 @@ package process_transaction
 
 import (
 	"github.com/golang/mock/gomock"
+	mock_broker "github.com/samuelterra22/clean-architecture-go/adapter/broker/mock"
 	"github.com/samuelterra22/clean-architecture-go/domain/entity"
 	mock_repository "github.com/samuelterra22/clean-architecture-go/domain/repository/mock"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +32,10 @@ func TestProcessTransaction_ExecuteInvalidCreditCard(t *testing.T) {
 	repositoryMock := mock_repository.NewMockTransactionRepository(ctrl)
 	repositoryMock.EXPECT().Insert(input.ID, input.AccountID, input.Amount, expectedOutput.Status, expectedOutput.ErrorMessage).Return(nil)
 
-	usecase := NewProcessTransaction(repositoryMock)
+	producerMock := mock_broker.NewMockProducerInterface(ctrl)
+	producerMock.EXPECT().Publish(expectedOutput, []byte(input.ID), "transactions_result")
+
+	usecase := NewProcessTransaction(repositoryMock, producerMock, "transactions_result")
 
 	output, err := usecase.Execute(input)
 	assert.Nil(t, err)
@@ -60,7 +64,10 @@ func TestProcessTransaction_ExecuteRejectedTransaction(t *testing.T) {
 	repositoryMock := mock_repository.NewMockTransactionRepository(ctrl)
 	repositoryMock.EXPECT().Insert(input.ID, input.AccountID, input.Amount, expectedOutput.Status, expectedOutput.ErrorMessage).Return(nil)
 
-	usecase := NewProcessTransaction(repositoryMock)
+	producerMock := mock_broker.NewMockProducerInterface(ctrl)
+	producerMock.EXPECT().Publish(expectedOutput, []byte(input.ID), "transactions_result")
+
+	usecase := NewProcessTransaction(repositoryMock, producerMock, "transactions_result")
 
 	output, err := usecase.Execute(input)
 	assert.Nil(t, err)
@@ -91,7 +98,11 @@ func TestProcessTransaction_ExecuteApprovedTransaction(t *testing.T) {
 	repositoryMock := mock_repository.NewMockTransactionRepository(ctrl)
 	repositoryMock.EXPECT().Insert(input.ID, input.AccountID, input.Amount, entity.APPROVED, "").Return(nil)
 
-	usecase := NewProcessTransaction(repositoryMock)
+	producerMock := mock_broker.NewMockProducerInterface(ctrl)
+	producerMock.EXPECT().Publish(expectedOutput, []byte(input.ID), "transactions_result")
+
+	usecase := NewProcessTransaction(repositoryMock, producerMock, "transactions_result")
+
 	output, err := usecase.Execute(input)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedOutput, output)

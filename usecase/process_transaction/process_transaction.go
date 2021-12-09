@@ -1,16 +1,23 @@
 package process_transaction
 
 import (
+	"github.com/samuelterra22/clean-architecture-go/adapter/broker"
 	"github.com/samuelterra22/clean-architecture-go/domain/entity"
 	"github.com/samuelterra22/clean-architecture-go/domain/repository"
 )
 
 type ProcessTransaction struct {
 	Repository repository.TransactionRepository
+	Producer   broker.ProducerInterface
+	Topic      string
 }
 
-func NewProcessTransaction(repository repository.TransactionRepository) *ProcessTransaction {
-	return &ProcessTransaction{Repository: repository}
+func NewProcessTransaction(repository repository.TransactionRepository, producer broker.ProducerInterface, topic string) *ProcessTransaction {
+	return &ProcessTransaction{
+		Repository: repository,
+		Producer:   producer,
+		Topic:      topic,
+	}
 }
 
 func (p *ProcessTransaction) Execute(input TransactionDtoInput) (TransactionDtoOutput, error) {
@@ -46,6 +53,10 @@ func (p *ProcessTransaction) approveTransaction(transaction *entity.Transaction)
 		Status:       entity.APPROVED,
 		ErrorMessage: "",
 	}
+	err = p.publish(output, []byte(transaction.ID))
+	if err != nil {
+		return TransactionDtoOutput{}, err
+	}
 	return output, nil
 }
 
@@ -59,5 +70,17 @@ func (p *ProcessTransaction) rejectTransaction(transaction *entity.Transaction, 
 		Status:       entity.REJECTED,
 		ErrorMessage: invalidTransaction.Error(),
 	}
+	err = p.publish(output, []byte(transaction.ID))
+	if err != nil {
+		return TransactionDtoOutput{}, err
+	}
 	return output, nil
+}
+
+func (p ProcessTransaction) publish(output TransactionDtoOutput, key []byte) error {
+	err := p.Producer.Publish(output, key, p.Topic)
+	if err != nil {
+		return err
+	}
+	return nil
 }

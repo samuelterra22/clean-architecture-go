@@ -3,6 +3,7 @@ module github.com/samuelterra22/clean-architecture-go
 go 1.17
 
 require (
+	github.com/confluentinc/confluent-kafka-go v1.7.0
 	github.com/golang/mock v1.6.0
 	github.com/maragudk/migrate v0.4.1
 	github.com/mattn/go-sqlite3 v1.14.7

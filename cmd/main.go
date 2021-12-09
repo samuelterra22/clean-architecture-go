@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/samuelterra22/clean-architecture-go/adapter/repository"
+	"github.com/samuelterra22/clean-architecture-go/adapter/broker/kafka"
+	"github.com/samuelterra22/clean-architecture-go/adapter/factory"
+	"github.com/samuelterra22/clean-architecture-go/adapter/presenter/transaction"
 	"github.com/samuelterra22/clean-architecture-go/usecase/process_transaction"
 	"log"
 )
@@ -17,21 +19,30 @@ func main() {
 		log.Fatal(err)
 	}
 
-	repo := repository.NewTransactionRepositoryDb(db)
-	usecase := process_transaction.NewProcessTransaction(repo)
+	repositoryFactory := factory.NewRepositoryDatabaseFactory(db)
+	repository := repositoryFactory.CreateTransactionRepository()
 
-	input := process_transaction.TransactionDtoInput{
-		ID:        "1",
-		AccountID: "1",
-		Amount:    10,
+	configMapProducer := &ckafka.ConfigMap{
+		"bootstrap.servers": "kafka:9092",
+	}
+	kafkaPresenter := transaction.NewTransactionKafkaPresenter()
+	producer := kafka.NewKafkaProducer(configMapProducer, kafkaPresenter)
+	var msgChan = make(chan *ckafka.Message)
+	configMapConsumer := &ckafka.ConfigMap{
+		"bootstrap.servers": "kafka:9092",
+		"client.id":         "goapp",
+		"group.id":          "goapp",
+	}
+	topics := []string{"transactions"}
+	consumer := kafka.NewConsumer(configMapConsumer, topics)
+	go consumer.Consume(msgChan)
+
+	usecase := process_transaction.NewProcessTransaction(repository, producer, "transactions_result")
+
+	for msg := range msgChan {
+		var input process_transaction.TransactionDtoInput
+		json.Unmarshal(msg.Value, &input)
+		usecase.Execute(input)
 	}
 
-	output, err := usecase.Execute(input)
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	outputJson, _ := json.Marshal(output)
-	fmt.Println(string(outputJson))
 }

@@ -26,3 +26,11 @@ docker-compose up -d
 ```shell
 docker exec -it aluno_app_1 bash
 ```
+
+```shell
+docker exec -it aluno_kafka_1 bash 
+kafka-console-producer --bootstrap-server=localhost:9092 --topic=transactions
+kafka-console-consumer --bootstrap-server=localhost:9092 --topic=transactions_result
+{"id": "123","account_id": "1","credit_card_number": "40000000000000000","credit_card_name": "Samuel Terra","credit_card_expiration_month": 12,"credit_card_expiration_year": 2024,"credit_card_expiration_cvv": 123,"amount": 1200}
+{"id": "123","account_id": "1","credit_card_number": "4193523830170205","credit_card_name": "Samuel Terra","credit_card_expiration_month": 12,"credit_card_expiration_year": 2024,"credit_card_expiration_cvv": 123,"amount": 1200}
+```
