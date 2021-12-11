@@ -9,16 +9,16 @@ import { AccountsModule } from './accounts/accounts.module';
 import {Account} from "./accounts/entities/account.entity";
 
 @Module({
-  imports: [OrdersModule, SequelizeModule.forRoot({
+  imports: [SequelizeModule.forRoot({
     dialect: "sqlite",
     host: join(__dirname, "database.sqlite"),
     autoLoadModels: true,
     models: [Order, Account],
     sync: {
       alter: true,
-      force: true // remove this for production
+      // force: true // remove this for production
     }
-  }), AccountsModule],
+  }), OrdersModule, AccountsModule],
   controllers: [AppController],
   providers: [AppService],
 })

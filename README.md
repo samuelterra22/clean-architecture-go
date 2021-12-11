@@ -41,5 +41,13 @@ nest g controller MyController
 ```
 
 ```shell
-nest g resource
+nest g resource orders
+```
+
+```shell
+nest g service accounts/account-storage
+```
+
+```shell
+nest g guard accounts/token 
 ```
