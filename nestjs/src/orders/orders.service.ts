@@ -18,20 +18,21 @@ export class OrdersService {
       private kafkaProducer: Producer
   ) {}
 
-  create(createOrderDto: CreateOrderDto) {
-    const order = this.orderModel.create({
+  async create(createOrderDto: CreateOrderDto) {
+    const order = await this.orderModel.create({
       ...createOrderDto,
       account_id: this.accountStorage.account.id
     });
 
-    this.kafkaProducer.send({
+    await this.kafkaProducer.send({
       topic: 'transactions',
-      messages: [{
-        key: 'transactions',
-        value: JSON.stringify(order)
-      }]
-
-    })
+      messages: [
+        {
+          key: 'transactions',
+          value: JSON.stringify(order),
+        },
+      ],
+    });
 
     return order
   }

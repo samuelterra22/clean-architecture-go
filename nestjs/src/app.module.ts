@@ -23,7 +23,7 @@ import {ConfigModule} from "@nestjs/config";
       models: [Order, Account],
       sync: {
         alter: true,
-        force: true
+        // force: true
       },
     }),
       // SequelizeModule.forRoot({
