@@ -29,7 +29,7 @@ export class OrdersService {
       messages: [
         {
           key: 'transactions',
-          value: JSON.stringify(order),
+          value: JSON.stringify({...createOrderDto, ...order}),
         },
       ],
     });
@@ -45,7 +45,7 @@ export class OrdersService {
     });
   }
 
-  findOne(id: string) {
+  findOneUsingAccount(id: string) {
     return this.orderModel.findOne({
       where: {
         id,
@@ -55,13 +55,18 @@ export class OrdersService {
     });
   }
 
+  findOne(id: string) {
+    return this.orderModel.findByPk(id)
+  }
+
   async update(id: string, updateOrderDto: UpdateOrderDto) {
-    const order = await this.findOne(id)
+    const account = this.accountStorage.account
+    const order = await (account? this.findOneUsingAccount(id) : this.findOne(id))
     return order.update(updateOrderDto)
   }
 
   async remove(id: string) {
-    const order = await this.findOne(id)
+    const order = await this.findOneUsingAccount(id)
     return order.destroy()
   }
 }
