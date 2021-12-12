@@ -51,3 +51,7 @@ nest g service accounts/account-storage
 ```shell
 nest g guard accounts/token 
 ```
+
+```shell
+127.0.0.1       host.docker.internal
+```
