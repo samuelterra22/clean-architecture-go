@@ -4,6 +4,8 @@ import {Typography, Link as MuiLink} from "@mui/material";
 import Link from "next/link";
 import {DataGrid, GridColumns} from "@mui/x-data-grid";
 import {OrderStatus, OrderStatusTranslate} from "../../utils/models";
+import {withIronSessionSsr} from 'iron-session/next'
+import ironConfig from "../../utils/iron-config";
 
 const OrdersPage = (props:any) => {
     const columns: GridColumns = [
@@ -53,17 +55,35 @@ const OrdersPage = (props:any) => {
     );
 };
 
-export default OrdersPage
+export default OrdersPage;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const {data} = await axios.get('http://localhost:3000/orders', {
-        headers: {
-            'x-token': '94x9errs71q'
+export const getServerSideProps: GetServerSideProps = withIronSessionSsr(
+    async (context) => {
+        const account = context.req.session.account;
+
+        if (!account) {
+            return {
+                redirect: {
+                    destination: "/login",
+                    permanent: false,
+                },
+            };
         }
-    })
-  return {
-      props: {
-          orders: data
-      }
-  }
-}
+
+        const { data } = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_HOST}/orders`,
+            {
+                headers: {
+                    cookie: context.req.headers.cookie as string,
+                },
+            }
+        );
+
+        return {
+            props: {
+                orders: data,
+            },
+        };
+    },
+    ironConfig
+);

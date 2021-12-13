@@ -2,21 +2,28 @@ import {GetStaticPaths, GetStaticProps} from "next";
 import axios from "axios";
 import {Typography, Card, CardHeader, CardContent, Grid, Box} from "@mui/material";
 import  useSWR from 'swr';
-import {useRouter} from "next/router";
+import Router, { useRouter } from "next/router";
 
-const fetcher = (url: string) => axios.get(url, {
-    headers: {
-        'x-token': '94x9errs71q'
-    }
-}).then(res => res.data)
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
-const OrdersShowPage = (props:any) => {
-    const router = useRouter()
-    const {id} = router.query
-    const {data, error} = useSWR(`http://localhost:3000/orders/${id}`, fetcher)
+const OrderShowPage = (props: any) => {
+    const router = useRouter();
+    const { id } = router.query;
+    const { data, error } = useSWR(
+        `${process.env.NEXT_PUBLIC_API_HOST}/orders/${id}`,
+        fetcher,
+        {
+            onError: (error) => {
+                console.log(error);
+                if (error.response.status === 401 || error.response.status === 403) {
+                    Router.push('/login');
+                }
+            },
+        }
+    );
 
-    return (
-        data ? (<div style={{ height: 400, width: "100%" }}>
+    return data ? (
+        <div style={{ height: 400, width: "100%" }}>
             <Grid container>
                 <Grid item>
                     <Card>
@@ -56,22 +63,22 @@ const OrdersShowPage = (props:any) => {
                     </Card>
                 </Grid>
             </Grid>
-        </div>) : null
-    );
+        </div>
+    ) : null;
 };
 
-export default OrdersShowPage
+export default OrderShowPage;
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  return {
-      props: {},
-      revalidate: 20
-  }
-}
+    return {
+        props: {},
+        revalidate: 20,
+    };
+};
 
 export const getStaticPaths: GetStaticPaths = async (context) => {
     return {
         paths: [],
-        fallback: 'blocking'
-    }
-}
+        fallback: "blocking",
+    };
+};
