@@ -1,5 +1,5 @@
 const ironConfig = {
-    password: "01234567890123456789012345678912345",
+    password: process.env.COOKIE_KEY as string,
     cookieName: "fullcycle-session",
     cookieOptions: {
         // the next line allows to use the session in non-https environments like
