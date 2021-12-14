@@ -10,10 +10,11 @@ import (
 	"github.com/samuelterra22/clean-architecture-go/adapter/presenter/transaction"
 	"github.com/samuelterra22/clean-architecture-go/usecase/process_transaction"
 	"log"
+	"os"
 )
 
 func main() {
-	db, err := sql.Open("sqlite3", "test.db")
+	db, err := sql.Open("mysql", os.Getenv("MYSQL_USERNAME")+":"+os.Getenv("MYSQL_PASSWORD")+"@tcp("+os.Getenv("MYSQL_HOST")+":3306)/"+os.Getenv("MYSQL_DATABASE"))
 
 	if err != nil {
 		log.Fatal(err)
@@ -23,13 +24,21 @@ func main() {
 	repository := repositoryFactory.CreateTransactionRepository()
 
 	configMapProducer := &ckafka.ConfigMap{
-		"bootstrap.servers": "host.docker.internal:9094",
+		"bootstrap.servers": os.Getenv("BOOTSTRAP_SERVERS"),
+		"security.protocol": os.Getenv("SECURITY_PROTOCOL"),
+		"sasl.mechanisms":   os.Getenv("SASL_MECHANISMS"),
+		"sasl.username":     os.Getenv("SASL_USERNAME"),
+		"sasl.password":     os.Getenv("SASL_PASSWORD"),
 	}
 	kafkaPresenter := transaction.NewTransactionKafkaPresenter()
 	producer := kafka.NewKafkaProducer(configMapProducer, kafkaPresenter)
 	var msgChan = make(chan *ckafka.Message)
 	configMapConsumer := &ckafka.ConfigMap{
-		"bootstrap.servers": "host.docker.internal:9094",
+		"bootstrap.servers": os.Getenv("BOOTSTRAP_SERVERS"),
+		"security.protocol": os.Getenv("SECURITY_PROTOCOL"),
+		"sasl.mechanisms":   os.Getenv("SASL_MECHANISMS"),
+		"sasl.username":     os.Getenv("SASL_USERNAME"),
+		"sasl.password":     os.Getenv("SASL_PASSWORD"),
 		"client.id":         "goapp",
 		"group.id":          "goapp",
 	}
